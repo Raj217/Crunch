@@ -1,3 +1,4 @@
+import 'package:crunch/screens/project_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -39,7 +40,8 @@ class _BoardsSliderState extends State<BoardsSlider> {
                         padding:
                             EdgeInsets.symmetric(horizontal: widget.spacing),
                         child: _Board(
-                          data: snapshot.data![index],
+                          data:
+                              Map<String, dynamic>.from(snapshot.data![index]),
                           height: widget.height * 4 / 5,
                         ),
                       );
@@ -50,7 +52,7 @@ class _BoardsSliderState extends State<BoardsSlider> {
 }
 
 class _Board extends StatelessWidget {
-  final Map data;
+  final Map<String, dynamic> data;
   static const List<Color> _availableColorsForBG = [
     kColorBlue,
     kColorPurple,
@@ -76,7 +78,11 @@ class _Board extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ProjectScreen(data: data);
+          }));
+        },
         child: Container(
           height: height,
           width: width,

@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               Text(
                 'Crunch',
-                style: kTextStyleDefaultLogo.copyWith(fontSize: 50),
+                style: kTextStyleDefaultStylised.copyWith(fontSize: 50),
               ),
               SizedBox(
                 height: 200,

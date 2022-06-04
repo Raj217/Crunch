@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '685765304310',
     projectId: 'crunch-6d707',
     storageBucket: 'crunch-6d707.appspot.com',
-    iosClientId: '685765304310-ifmtsn2ln32icjs0ddshq56nml0ib4og.apps.googleusercontent.com',
+    iosClientId:
+        '685765304310-ifmtsn2ln32icjs0ddshq56nml0ib4og.apps.googleusercontent.com',
     iosBundleId: 'com.example.crunch',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '685765304310',
     projectId: 'crunch-6d707',
     storageBucket: 'crunch-6d707.appspot.com',
-    iosClientId: '685765304310-ifmtsn2ln32icjs0ddshq56nml0ib4og.apps.googleusercontent.com',
+    iosClientId:
+        '685765304310-ifmtsn2ln32icjs0ddshq56nml0ib4og.apps.googleusercontent.com',
     iosBundleId: 'com.example.crunch',
   );
 }

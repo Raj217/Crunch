@@ -24,7 +24,7 @@ const double kSizeIconDefault = 15;
 // --------------------------------- TextStyle ---------------------------------
 const TextStyle _kDefaultStylisedFontFamily = TextStyle(fontFamily: 'Belgates');
 const TextStyle _kDefaultFontFamily = TextStyle(fontFamily: 'Poppins');
-final TextStyle kTextStyleDefaultLogo =
+final TextStyle kTextStyleDefaultStylised =
     _kDefaultStylisedFontFamily.copyWith(fontSize: 25, color: kColorBlack);
 final TextStyle kTextStyleDefaultHeader = _kDefaultFontFamily.copyWith(
     fontWeight: FontWeight.w600, color: kColorBlack);
