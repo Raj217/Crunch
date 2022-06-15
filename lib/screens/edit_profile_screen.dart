@@ -68,7 +68,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     File? file;
     if (img != null) {
       tempDir = await getTemporaryDirectory();
-      String imgPath = '${tempDir!.path}/tempImg.png';
+      String imgPath =
+          '${tempDir!.path}/${Provider.of<ProjectsHandler>(context, listen: false).getCurrentUser?.email}.jng';
       file = File(imgPath);
       file.writeAsBytesSync(img);
     }
