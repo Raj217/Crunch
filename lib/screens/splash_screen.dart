@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:crunch/screens/auth_screen.dart';
 import 'package:crunch/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -5,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import 'package:crunch/utils/constant.dart';
 import 'package:crunch/utils/provider/projects_handler.dart';
+
+import 'package:flutter/scheduler.dart' show timeDilation;
 
 class SplashScreen extends StatefulWidget {
   static const String id = "Splash Screen";
@@ -26,8 +31,13 @@ class _SplashScreenState extends State<SplashScreen>
 
     Provider.of<ProjectsHandler>(context, listen: false)
         .connect()
-        .then((value) {
-      Navigator.pushNamed(context, HomeScreen.id);
+        .then((userExists) {
+      if (userExists) {
+        Navigator.pushNamed(context, HomeScreen.id).then(
+            (_) => Navigator.pushReplacementNamed(context, AuthScreen.id));
+      } else {
+        Navigator.pushNamed(context, AuthScreen.id).then((_) => exit(0));
+      }
     });
   }
 
@@ -39,6 +49,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    timeDilation = 1;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -46,9 +57,12 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Crunch',
-                style: kTextStyleDefaultStylised.copyWith(fontSize: 50),
+              Hero(
+                tag: 'App name',
+                child: Text(
+                  'Crunch',
+                  style: kTextStyleDefaultStylised.copyWith(fontSize: 50),
+                ),
               ),
               SizedBox(
                 height: 200,

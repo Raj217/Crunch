@@ -36,6 +36,17 @@ dependencies:
   lottie: ^1.3.0
   http: ^0.13.4
   cloud_firestore: ^3.1.17
+  drag_and_drop_lists: ^0.3.2+2
+  firebase_auth: ^3.3.19
+  animate_do: ^2.1.0
+  custom_pop_up_menu: ^1.2.4
+  dotted_border: ^2.0.0+2
+  image_cropper: ^2.0.3
+  file_picker: ^4.6.1
+  firebase_storage: ^10.2.17
+  google_sign_in: ^5.3.3
+  confirm_dialog: ^1.0.1
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:
@@ -48,11 +59,15 @@ flutter:
 
   assets:
     - assets/lottie/
+    - assets/default images/
 
   fonts:
     - family: Belgates
       fonts:
         - asset: assets/fonts/Belgates/Belgates Script.otf
+    - family: Horizon
+      fonts:
+        - asset: assets/fonts/Horizon/Horizon.otf
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins/Poppins-Black.ttf

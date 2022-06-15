@@ -9,7 +9,7 @@ class SearchBar extends StatefulWidget {
   final Color bgColor;
   final Color iconColor;
   final double iconSize;
-  final void Function()? onTap;
+  final void Function(String)? onChanged;
   SearchBar(
       {Key? key,
       this.height = kSizeIconDefault,
@@ -18,7 +18,7 @@ class SearchBar extends StatefulWidget {
       this.bgColor = kColorGray,
       this.iconColor = kColorBlack,
       this.iconSize = kSizeIconDefault,
-      this.onTap})
+      this.onChanged})
       : iconData = icon ?? Icons.search,
         super(key: key);
 
@@ -44,11 +44,7 @@ class _SearchBarState extends State<SearchBar> {
       child: GestureDetector(
         onTap: () {
           _isActive = !_isActive;
-          setState(() {
-            if (widget.onTap != null) {
-              widget.onTap!();
-            }
-          });
+          setState(() {});
         },
         child: SizedBox(
           width: widget.width,
@@ -78,6 +74,7 @@ class _SearchBarState extends State<SearchBar> {
                       child: TextField(
                         controller: _textEditingController,
                         autofocus: true,
+                        onChanged: widget.onChanged,
                         style:
                             kTextStyleDefaultActiveText.copyWith(fontSize: 10),
                         onSubmitted: (val) {

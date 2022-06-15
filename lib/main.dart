@@ -1,3 +1,5 @@
+import 'package:crunch/screens/auth_screen.dart';
+import 'package:crunch/screens/edit_profile_screen.dart';
 import 'package:crunch/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,13 +23,16 @@ class Crunch extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Crunch',
         theme: ThemeData.light().copyWith(
-            backgroundColor: kColorBG,
+            colorScheme: ColorScheme.fromSwatch(accentColor: kColorBlack),
             textSelectionTheme: const TextSelectionThemeData(
                 selectionHandleColor: kColorBlack)),
         initialRoute: SplashScreen.id,
         routes: {
+          AuthScreen.id: (BuildContext context) => const AuthScreen(),
+          EditProfileScreen.id: (BuildContext context) =>
+              const EditProfileScreen(),
           SplashScreen.id: (BuildContext context) => const SplashScreen(),
-          HomeScreen.id: (BuildContext context) => const HomeScreen()
+          HomeScreen.id: (BuildContext context) => const HomeScreen(),
         },
       ),
     );

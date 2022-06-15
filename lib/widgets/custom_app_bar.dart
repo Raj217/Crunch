@@ -10,10 +10,14 @@ class CustomAppBar extends StatelessWidget {
   bool isLargeScreen = false;
   final bool isSearchBarVisible;
   final bool isBackButtonVisible;
+  final bool isProfileButtonVisible;
+  final void Function(String)? onSearchChanged;
   CustomAppBar(
       {Key? key,
       this.isSearchBarVisible = true,
-      this.isBackButtonVisible = false})
+      this.isBackButtonVisible = false,
+      this.isProfileButtonVisible = true,
+      this.onSearchChanged})
       : super(key: key);
 
   @override
@@ -39,16 +43,32 @@ class CustomAppBar extends StatelessWidget {
                     onTap: () {
                       Navigator.pop(context);
                     },
-                    child: const Icon(
-                      Icons.chevron_left_rounded,
-                      color: kColorBlack,
-                      size: kSizeIconDefault,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: const [
+                        Icon(Icons.circle,
+                            color: Colors.transparent,
+                            size: kSizeIconDefault + 20),
+                        Icon(
+                          Icons.chevron_left_rounded,
+                          color: kColorBlack,
+                          size: kSizeIconDefault,
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Text('Crunch', style: kTextStyleDefaultStylised),
+              Visibility(
+                visible: !isBackButtonVisible,
+                child: const SizedBox(width: 10),
+              ),
+              Hero(
+                  tag: 'App name',
+                  child: Text(
+                    'Crunch',
+                    style: kTextStyleDefaultStylised,
+                  )),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: CustomDivider(
@@ -73,13 +93,17 @@ class CustomAppBar extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: SearchBar(
+                    onChanged: onSearchChanged,
                     width: isLargeScreen ? 200 : 130,
                   ),
                 ),
               ),
             ],
           ),
-          const UserProfile(),
+          Visibility(
+            visible: isProfileButtonVisible,
+            child: const UserProfile(),
+          ),
         ],
       ),
     );
