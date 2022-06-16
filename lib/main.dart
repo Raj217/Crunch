@@ -2,13 +2,14 @@ import 'package:crunch/screens/auth_screen.dart';
 import 'package:crunch/screens/edit_profile_screen.dart';
 import 'package:crunch/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import 'package:crunch/utils/provider/projects_handler.dart';
 import 'package:crunch/screens/splash_screen.dart';
 import 'package:crunch/utils/constant.dart';
 
-void main() async {
+void main() {
   runApp(const Crunch());
 }
 

@@ -11,7 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
-
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 
 class AuthScreen extends StatefulWidget {
@@ -36,14 +36,6 @@ class _AuthScreenState extends State<AuthScreen> {
   TextEditingController confirmPasswordController = TextEditingController();
 
   final ValueNotifier<int> _textFieldIndex = ValueNotifier<int>(0);
-  @override
-  void initState() {
-    super.initState();
-
-    Provider.of<ProjectsHandler>(context, listen: false)
-        .connect()
-        .then((value) => _isConnected = true);
-  }
 
   bool isValidEmail() {
     String email = emailController.value.text;
@@ -219,7 +211,7 @@ class _AuthScreenState extends State<AuthScreen> {
     if (Provider.of<ProjectsHandler>(context).getCurrentUser != null &&
         Provider.of<ProjectsHandler>(context).isUserEmailVerified) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        Navigator.pushNamed(context, HomeScreen.id);
+        Navigator.pushReplacementNamed(context, HomeScreen.id);
       });
     }
     return Scaffold(
@@ -428,6 +420,11 @@ class _AuthScreenState extends State<AuthScreen> {
                       border: Border.all(color: kColorBlack, width: 0.2),
                     ),
                     child: Image.asset(paths[Paths.googleLogo]!)),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'version: ${Provider.of<ProjectsHandler>(context, listen: false).getAppVersion}',
+                style: kTextStyleDefaultInactiveText.copyWith(fontSize: 10),
               )
             ],
           ),

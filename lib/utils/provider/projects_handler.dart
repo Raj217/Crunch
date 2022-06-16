@@ -12,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:crunch/utils/firebase/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProjectsHandler extends ChangeNotifier {
   final String _apiLink =
@@ -21,6 +22,15 @@ class ProjectsHandler extends ChangeNotifier {
   late FirebaseStorage _firebaseStorage;
   bool _isFireStoreAvailable = false;
   late GoogleSignIn _googleSignIn;
+  late String appVersion;
+
+  ProjectsHandler() {
+    initAppVersion();
+  }
+
+  Future<void> initAppVersion() async {
+    appVersion = (await PackageInfo.fromPlatform()).version;
+  }
 
   /// For windows stream gets updated only when the timeStamp is changed
   final StreamController _streamController = StreamController.broadcast();
@@ -36,6 +46,7 @@ class ProjectsHandler extends ChangeNotifier {
   User? get getCurrentUser => _firebaseAuth.currentUser;
   Uint8List? get getProfileImage => profileImage;
   Stream get getStream => _streamController.stream;
+  String get getAppVersion => appVersion;
 
   set setUserName(String username) =>
       _firebaseAuth.currentUser?.updateDisplayName(username);
@@ -245,7 +256,9 @@ class ProjectsHandler extends ChangeNotifier {
     String message = '';
     try {
       if (currentProjects.contains(name)) {
-        yield 'Board with same name exists. Please change the name';
+        yield 'Project with same name exists. Please change the name';
+      } else if (name.contains('.')) {
+        yield 'Project name cannot contain period(.)';
       } else {
         setData({
           'project name': name,
@@ -268,7 +281,9 @@ class ProjectsHandler extends ChangeNotifier {
       try {
         if (oldBoardName != newBoardName &&
             currentProjects.contains(newBoardName)) {
-          yield 'Board with same name exists. Please change the name';
+          yield 'Project with same name exists. Please change the name';
+        } else if (newBoardName.contains('.')) {
+          yield 'Project name cannot contain period(.)';
         } else {
           DocumentSnapshot<Map<String, dynamic>> allData = await _firestore
               .collection('users')
