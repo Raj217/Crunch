@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crunch/screens/home_screen.dart';
 import 'package:crunch/utils/constant.dart';
 import 'package:crunch/utils/provider/projects_handler.dart';
@@ -23,11 +25,11 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  bool _isConnected = false;
   bool isEmailButtonActive = false;
   bool isProcessing = false;
   bool isPasswordButtonActive = false;
   bool isAnExistingUser = false;
+  bool isResendVerificationMailButtonVisible = false;
   String error = '';
 
   TextEditingController emailController = TextEditingController();
@@ -82,10 +84,12 @@ class _AuthScreenState extends State<AuthScreen> {
     required List<void Function(String)> textFieldOnChanged,
     required List<InputType> inputTypes,
     required bool isButtonActive,
+    bool isKeyboardTypeEmail = false,
     bool showResetButton = false,
     required void Function() onButtonTap,
     required String buttonText,
     required bool isBackButtonVisible,
+    bool isResendVerificationMailButtonVisible = false,
     bool addUserProfileOption = false,
     double gapBetweenEachField = 10,
   }) {
@@ -101,6 +105,7 @@ class _AuthScreenState extends State<AuthScreen> {
       children.add(
         CustomTextField(
           hintText: hintTexts[index],
+          isKeyboardTypeEmail: isKeyboardTypeEmail,
           controller: controllers[index],
           autofocus: index == 0,
           inputType: inputTypes[index],
@@ -126,7 +131,36 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     );
 
-    /// Adding the forgot reset button
+    children.add(
+      Visibility(
+        visible: isResendVerificationMailButtonVisible,
+        child: GestureDetector(
+          onTap: () async {
+            setState(() {
+              error = "";
+              isProcessing = true;
+            });
+            await Provider.of<ProjectsHandler>(context, listen: false)
+                .sendVerificationEmail();
+            setState(() {
+              error = "verification link has been sent";
+              isProcessing = false;
+            });
+          },
+          child: Padding(
+            padding:
+                EdgeInsets.only(left: MediaQuery.of(context).size.width / 2),
+            child: Text(
+              'resend verification link',
+              style: kTextStyleDefaultActiveText.copyWith(
+                  color: kColorBlue, fontSize: 10),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    /// Adding the forgot password button
     children.add(
       Visibility(
         visible: showResetButton,
@@ -147,9 +181,9 @@ class _AuthScreenState extends State<AuthScreen> {
           },
           child: Padding(
             padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.width / 2 + 40),
+                left: MediaQuery.of(context).size.width / 2 + 20),
             child: Text(
-              'reset password',
+              'forgot password',
               style: kTextStyleDefaultActiveText.copyWith(
                   color: kColorBlue, fontSize: 10),
             ),
@@ -206,14 +240,23 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (Provider.of<ProjectsHandler>(context, listen: false).getCurrentUser !=
+              null &&
+          Provider.of<ProjectsHandler>(context, listen: false)
+              .isUserEmailVerified) {
+        timer.cancel();
+        Navigator.pushNamed(context, HomeScreen.id);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     timeDilation = 1;
-    if (Provider.of<ProjectsHandler>(context).getCurrentUser != null &&
-        Provider.of<ProjectsHandler>(context).isUserEmailVerified) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        Navigator.pushReplacementNamed(context, HomeScreen.id);
-      });
-    }
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -242,17 +285,14 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               CustomAnimatedWidget(
-                  boxHeight: 380,
+                  boxHeight: 400,
                   currentVisibleChild: _textFieldIndex,
                   animDuration: const Duration(milliseconds: 400),
                   children: [
                     _getForm(
-                        hintTexts: [
-                          'email'
-                        ],
-                        controllers: [
-                          emailController
-                        ],
+                        hintTexts: ['email'],
+                        controllers: [emailController],
+                        isKeyboardTypeEmail: true,
                         textFieldOnChanged: [
                           (input) {
                             setState(() {
@@ -264,9 +304,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             });
                           }
                         ],
-                        inputTypes: [
-                          InputType.normal
-                        ],
+                        inputTypes: [InputType.normal],
                         isButtonActive: isEmailButtonActive,
                         onButtonTap: () {
                           setState(() {
@@ -304,11 +342,24 @@ class _AuthScreenState extends State<AuthScreen> {
                               ],
                               inputTypes: [InputType.obscurePartial],
                               isButtonActive: isPasswordButtonActive,
+                              isResendVerificationMailButtonVisible:
+                                  isResendVerificationMailButtonVisible,
                               onButtonTap: () {
-                                setState(() {
-                                  error = '';
-                                  isProcessing = true;
-                                });
+                                if (!Provider.of<ProjectsHandler>(context,
+                                        listen: false)
+                                    .isUserEmailVerified) {
+                                  setState(() {
+                                    error = '';
+                                    isProcessing = true;
+                                    isResendVerificationMailButtonVisible =
+                                        true;
+                                  });
+                                } else {
+                                  setState(() {
+                                    error = '';
+                                    isProcessing = true;
+                                  });
+                                }
                                 Provider.of<ProjectsHandler>(context,
                                         listen: false)
                                     .login(emailController.value.text,
@@ -332,6 +383,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 'password',
                                 'confirm password'
                               ],
+                              isResendVerificationMailButtonVisible:
+                                  isResendVerificationMailButtonVisible,
                               controllers: [
                                 usernameController,
                                 passwordController,
@@ -367,6 +420,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 setState(() {
                                   error = '';
                                   isProcessing = true;
+                                  isResendVerificationMailButtonVisible = true;
                                 });
                                 Provider.of<ProjectsHandler>(context,
                                         listen: false)

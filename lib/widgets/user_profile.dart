@@ -74,7 +74,7 @@ class _UserProfileState extends State<UserProfile> {
                     padding: const EdgeInsets.all(12),
                     child: _getMenuItems(texts: [
                       'Profile',
-                      'Sign Out & Exit'
+                      'Sign Out'
                     ], onTappedTexts: [
                       () {
                         Navigator.pushNamed(context, EditProfileScreen.id);
@@ -87,7 +87,7 @@ class _UserProfileState extends State<UserProfile> {
                             .signOut()
                             .then((value) {
                           isProcessing.value = false;
-                          exit(0);
+                          Navigator.pop(context);
                         });
                       }
                     ], colors: [

@@ -33,8 +33,9 @@ class _SplashScreenState extends State<SplashScreen>
         .connect()
         .then((userExists) {
       if (userExists) {
-        Navigator.pushNamed(context, HomeScreen.id).then(
-            (_) => Navigator.pushReplacementNamed(context, AuthScreen.id));
+        Navigator.pushNamed(context, HomeScreen.id).then((_) =>
+            Navigator.pushNamed(context, AuthScreen.id)
+                .then((value) => exit(0)));
       } else {
         Navigator.pushNamed(context, AuthScreen.id).then((_) => exit(0));
       }

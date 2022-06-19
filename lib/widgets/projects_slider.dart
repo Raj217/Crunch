@@ -1,4 +1,4 @@
-import 'package:confirm_dialog/confirm_dialog.dart';
+import 'package:crunch/widgets/confirm_delete.dart';
 import 'package:crunch/screens/project_screen.dart';
 import 'package:crunch/utils/provider/projects_handler.dart';
 import 'package:crunch/widgets/add_edit_project.dart';
@@ -68,9 +68,12 @@ class _ProjectsSliderState extends State<ProjectsSlider> {
                               (widget.matchProjectName?.isEmpty ?? false)) {
                             showBoard = false;
                           } else {
-                            if (widget.matchProjectName ==
-                                snapshot.data![index - 1]['project name']
-                                    .substring(
+                            String projectName =
+                                snapshot.data![index - 1]['project name'];
+                            if (widget.matchProjectName!.length <=
+                                    projectName.length &&
+                                widget.matchProjectName ==
+                                    projectName.substring(
                                         0, widget.matchProjectName!.length)) {
                               showBoard = true;
                             } else {
@@ -219,11 +222,7 @@ class _Project extends StatelessWidget {
                           onTap: () async {
                             if (await confirm(
                               context,
-                              title: const Text('Confirm'),
-                              content: Text(
-                                  'Would you like to delete ${data!['project name']}?'),
-                              textOK: const Text('Yes'),
-                              textCancel: const Text('No'),
+                              deleteItemText: data!['project name'],
                             )) {
                               await Provider.of<ProjectsHandler>(context,
                                       listen: false)

@@ -1,4 +1,4 @@
-import 'package:confirm_dialog/confirm_dialog.dart';
+import 'package:crunch/widgets/confirm_delete.dart';
 import 'package:crunch/utils/constant.dart';
 import 'package:crunch/utils/provider/projects_handler.dart';
 import 'package:crunch/widgets/add_edit_board_card.dart';
@@ -89,11 +89,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                       onTap: () async {
                         if (await confirm(
                           context,
-                          title: const Text('Confirm'),
-                          content: Text(
-                              'Would you like to delete ${item['card name']}?'),
-                          textOK: const Text('Yes'),
-                          textCancel: const Text('No'),
+                          deleteItemText: item['card name'],
                         )) {
                           data[boardName].removeWhere(
                               (card) => card['card name'] == item['card name']);
@@ -159,10 +155,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                     onTap: () async {
                       if (await confirm(
                         context,
-                        title: const Text('Confirm'),
-                        content: Text('Would you like to delete $boardName?'),
-                        textOK: const Text('Yes'),
-                        textCancel: const Text('No'),
+                        deleteItemText: boardName,
                       )) {
                         data['board indices'].remove(boardName);
                         data.remove(boardName);
@@ -263,7 +256,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
                                             child: Padding(
                                               padding: const EdgeInsets.all(10),
                                               child: Text(
-                                                data['project description'],
+                                                data['project description']
+                                                        .isNotEmpty
+                                                    ? data[
+                                                        'project description']
+                                                    : 'No description...',
                                                 style:
                                                     kTextStyleDefaultActiveText,
                                               ),

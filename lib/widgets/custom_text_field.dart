@@ -23,6 +23,7 @@ class CustomTextField extends StatefulWidget {
   final double height;
   final double width;
   final InputType inputType;
+  final bool isKeyboardTypeEmail;
   final bool isMultiline;
   final TextEditingController? controller;
   final bool readOnly;
@@ -39,6 +40,7 @@ class CustomTextField extends StatefulWidget {
       this.height = 40,
       this.width = 300,
       this.inputType = InputType.normal,
+      this.isKeyboardTypeEmail = false,
       this.isMultiline = false,
       this.readOnly = false,
       this.controller})
@@ -89,7 +91,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
               cursorColor: widget.borderColor,
               keyboardType: widget.isMultiline
                   ? TextInputType.multiline
-                  : TextInputType.emailAddress,
+                  : (widget.isKeyboardTypeEmail
+                      ? TextInputType.emailAddress
+                      : null),
               onChanged: widget.onChanged,
               decoration: InputDecoration(
                   isDense: true,
