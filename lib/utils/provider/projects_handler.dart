@@ -77,12 +77,13 @@ class ProjectsHandler extends ChangeNotifier {
 
   // ----------------------------------- App Download ----------------------------------
   Future<void> downloadUpdate() async {
-    bool hasPermission = await Permission.storage.request().isGranted;
-    if (hasPermission) {
+    if (await Permission.storage.request().isGranted &&
+        await Permission.requestInstallPackages.request().isGranted) {
     } else {
-      await Permission.storage.request();
+      await [Permission.storage, Permission.requestInstallPackages].request();
     }
-    if (await Permission.storage.request().isGranted) {
+    if (await Permission.storage.request().isGranted &&
+        await Permission.requestInstallPackages.request().isGranted) {
       try {
         if (await isNewAppVersionAvailable) {
           String appName =
@@ -127,8 +128,6 @@ class ProjectsHandler extends ChangeNotifier {
   }
 
   Future<bool> connect() async {
-    Directory? extDir = await getExternalStorageDirectory();
-    await extDir?.delete(recursive: true);
     if (await Permission.storage.request().isGranted) {
     } else {
       await Permission.storage.request();
@@ -142,6 +141,13 @@ class ProjectsHandler extends ChangeNotifier {
     _firebaseStorage = FirebaseStorage.instance;
     _googleSignIn = GoogleSignIn();
     _firebaseRemoteConfig = FirebaseRemoteConfig.instance;
+
+    Directory? extDir = await getExternalStorageDirectory();
+    File file = File(
+        '${extDir?.path}/crunch_v${_firebaseRemoteConfig.getString('version')}.apk');
+    if (await file.exists()) {
+      await file.delete();
+    }
 
     await _firebaseRemoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(seconds: 1),
