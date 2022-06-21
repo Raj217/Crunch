@@ -39,74 +39,76 @@ class _SearchBarState extends State<SearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          _isActive = !_isActive;
-          setState(() {});
-        },
-        child: SizedBox(
-          width: widget.width,
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              Icon(
-                Icons.circle,
-                size: widget.height + 20,
-                color: Colors.transparent,
-              ),
-              AnimatedContainer(
-                height: widget.height *
-                    3 /
-                    2, // To give some breathing room for the text
-                width: _isActive ? widget.width : 15,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _isActive ? widget.bgColor : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+    return SizedBox(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            _isActive = !_isActive;
+            setState(() {});
+          },
+          child: SizedBox(
+            width: widget.width,
+            child: Stack(
+              alignment: Alignment.centerLeft,
+              children: [
+                Icon(
+                  Icons.circle,
+                  size: widget.height + 20,
+                  color: Colors.transparent,
                 ),
-                duration: const Duration(milliseconds: 200),
-              ),
-              _isActive
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _textEditingController,
-                        autofocus: true,
-                        onChanged: widget.onChanged,
-                        style:
-                            kTextStyleDefaultActiveText.copyWith(fontSize: 10),
-                        onSubmitted: (val) {
-                          setState(() {
-                            _isActive = false;
-                          });
-                        },
-                        cursorColor: kColorGrayDark,
-                        decoration: InputDecoration(
-                          hintText: 'Search Project...',
-                          focusColor: kColorBlack,
-                          focusedBorder: InputBorder.none,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          hintStyle: kTextStyleDefaultInactiveText.copyWith(
+                AnimatedContainer(
+                  height: widget.height *
+                      3 /
+                      2, // To give some breathing room for the text
+                  width: _isActive ? widget.width : 15,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: _isActive ? widget.bgColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  duration: const Duration(milliseconds: 200),
+                ),
+                _isActive
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextField(
+                          controller: _textEditingController,
+                          autofocus: true,
+                          onChanged: widget.onChanged,
+                          style: kTextStyleDefaultActiveText.copyWith(
                               fontSize: 10),
+                          onSubmitted: (val) {
+                            setState(() {
+                              _isActive = false;
+                            });
+                          },
+                          cursorColor: kColorGrayDark,
+                          decoration: InputDecoration(
+                            hintText: 'Search Project...',
+                            focusColor: kColorBlack,
+                            focusedBorder: InputBorder.none,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            hintStyle: kTextStyleDefaultInactiveText.copyWith(
+                                fontSize: 10),
+                          ),
                         ),
-                      ),
-                    )
-                  : const SizedBox(),
-              AnimatedPadding(
-                padding: _isActive
-                    ? EdgeInsets.only(left: widget.width - widget.iconSize)
-                    : EdgeInsets.zero,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  widget.iconData,
-                  color: widget.iconColor,
-                  size: widget.iconSize,
+                      )
+                    : const SizedBox(),
+                AnimatedPadding(
+                  padding: _isActive
+                      ? EdgeInsets.only(left: widget.width - widget.iconSize)
+                      : EdgeInsets.zero,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    widget.iconData,
+                    color: widget.iconColor,
+                    size: widget.iconSize,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

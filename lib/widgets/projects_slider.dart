@@ -222,7 +222,7 @@ class _Project extends StatelessWidget {
                           onTap: () async {
                             if (await confirm(
                               context,
-                              deleteItemText: data!['project name'],
+                              focusText: data!['project name'],
                             )) {
                               await Provider.of<ProjectsHandler>(context,
                                       listen: false)

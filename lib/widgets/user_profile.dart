@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 import '../screens/edit_profile_screen.dart';
 
 class UserProfile extends StatefulWidget {
-  const UserProfile({Key? key}) : super(key: key);
+  final double profileSize;
+  const UserProfile({Key? key, this.profileSize = kSizeIconDefault})
+      : super(key: key);
 
   @override
   State<UserProfile> createState() => _UserProfileState();
@@ -21,17 +23,22 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   bool menuVisible = false;
   ValueNotifier<bool> isProcessing = ValueNotifier(false);
+  CustomPopupMenuController _controller = CustomPopupMenuController();
 
-  Column _getMenuItems({
+  Widget _getMenuItems({
     required List<String> texts,
     required List<void Function()> onTappedTexts,
     required List<Color> colors,
   }) {
-    List<Widget> children = [];
-
-    for (int index = 0; index < texts.length; index++) {
-      children.add(
-        InkWell(
+    return ListView.separated(
+      padding: const EdgeInsets.all(0),
+      shrinkWrap: true,
+      separatorBuilder: (context, _) {
+        return const Divider(thickness: 1);
+      },
+      itemCount: texts.length,
+      itemBuilder: (context, index) {
+        return InkWell(
           onTap: onTappedTexts[index],
           child: Text(
             texts[index],
@@ -40,23 +47,8 @@ class _UserProfileState extends State<UserProfile> {
                 fontWeight: FontWeight.w300,
                 color: colors[index]),
           ),
-        ),
-      );
-      if (index != texts.length - 1) {
-        children.add(
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: CustomDivider(
-              thickness: 0.5,
-            ),
-          ),
         );
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: children,
+      },
     );
   }
 
@@ -65,35 +57,41 @@ class _UserProfileState extends State<UserProfile> {
     return Stack(
       children: [
         CustomPopupMenu(
+          controller: _controller,
           menuBuilder: () => ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: Container(
               color: kColorBG,
-              child: IntrinsicWidth(
-                child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: _getMenuItems(texts: [
-                      'Profile',
-                      'Sign Out'
-                    ], onTappedTexts: [
-                      () {
-                        Navigator.pushNamed(context, EditProfileScreen.id);
-                      },
-                      () async {
-                        isProcessing.value = true;
-                        showLoadingOverlay(
-                            context: context, isVisible: isProcessing);
-                        Provider.of<ProjectsHandler>(context, listen: false)
-                            .signOut()
-                            .then((value) {
-                          isProcessing.value = false;
-                          Navigator.pop(context);
-                        });
-                      }
-                    ], colors: [
-                      kColorBlack,
-                      Colors.red
-                    ])),
+              width: 100,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: _getMenuItems(texts: [
+                  'Profile',
+                  'Settings',
+                  'Sign Out'
+                ], onTappedTexts: [
+                  () {
+                    _controller.hideMenu();
+                    Navigator.pushNamed(context, EditProfileScreen.id);
+                  },
+                  () {},
+                  () async {
+                    _controller.hideMenu();
+                    isProcessing.value = true;
+                    showLoadingOverlay(
+                        context: context, isVisible: isProcessing);
+                    Provider.of<ProjectsHandler>(context, listen: false)
+                        .signOut()
+                        .then((value) {
+                      isProcessing.value = false;
+                      Navigator.pop(context);
+                    });
+                  }
+                ], colors: [
+                  kColorBlack,
+                  kColorBlack,
+                  Colors.red
+                ]),
               ),
             ),
           ),
@@ -117,7 +115,7 @@ class _UserProfileState extends State<UserProfile> {
                           .image
                       : AssetImage(paths[Paths.defaultUserAvatar]!),
               backgroundColor: kColorBG,
-              radius: kSizeIconDefault,
+              radius: widget.profileSize,
             ),
           ),
         )

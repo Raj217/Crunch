@@ -13,7 +13,8 @@ Future<bool> confirm(
   double? height,
   double? width,
   String title = 'Confirm',
-  required String deleteItemText,
+  String message = 'Would you like to delete ',
+  String focusText = '',
 }) async {
   Size screenSize = MediaQuery.of(context).size;
   height ??= screenSize.height / 4;
@@ -38,15 +39,15 @@ Future<bool> confirm(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: kTextStyleDefaultStylised) ?? const SizedBox(),
+              Text(title, style: kTextStyleDefaultStylised),
               Wrap(
                 children: [
                   Text(
-                    'Would you like to delete ',
+                    message,
                     style: kTextStyleDefaultInactiveText.copyWith(fontSize: 13),
                   ),
                   Text(
-                    deleteItemText,
+                    focusText,
                     style: kTextStyleDefaultInactiveText.copyWith(
                         fontSize: 13, fontWeight: FontWeight.w600),
                   ),

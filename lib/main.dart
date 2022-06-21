@@ -1,15 +1,18 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:crunch/screens/auth_screen.dart';
 import 'package:crunch/screens/edit_profile_screen.dart';
 import 'package:crunch/screens/home_screen.dart';
+import 'package:crunch/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import 'package:crunch/utils/provider/projects_handler.dart';
 import 'package:crunch/screens/splash_screen.dart';
 import 'package:crunch/utils/constant.dart';
 
-void main() {
+void main() async {
   runApp(const Crunch());
 }
 
@@ -34,6 +37,7 @@ class Crunch extends StatelessWidget {
               const EditProfileScreen(),
           SplashScreen.id: (BuildContext context) => const SplashScreen(),
           HomeScreen.id: (BuildContext context) => const HomeScreen(),
+          SettingsScreen.id: (BuildContext context) => SettingsScreen()
         },
       ),
     );

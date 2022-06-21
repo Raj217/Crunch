@@ -31,6 +31,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool isAnExistingUser = false;
   bool isResendVerificationMailButtonVisible = false;
   String error = '';
+  String imgPath = '';
 
   TextEditingController emailController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
@@ -96,7 +97,24 @@ class _AuthScreenState extends State<AuthScreen> {
     List<Widget> children = [];
 
     if (addUserProfileOption == true) {
-      children.add(EditableProfileImage());
+      children.add(EditableProfileImage(
+        imagePath: imgPath,
+        onBeginChoosingNewProfileImage: () {
+          setState(() {
+            isProcessing = true;
+          });
+        },
+        onEndChoosingNewProfileImage: () {
+          setState(() {
+            isProcessing = false;
+          });
+        },
+        onImgUpdate: (String newImgPath) {
+          setState(() {
+            imgPath = newImgPath;
+          });
+        },
+      ));
       children.add(const SizedBox(height: 10));
     }
 
@@ -351,8 +369,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                   setState(() {
                                     error = '';
                                     isProcessing = true;
-                                    isResendVerificationMailButtonVisible =
-                                        true;
                                   });
                                 } else {
                                   setState(() {
@@ -368,6 +384,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                   setState(() {
                                     error = response;
                                     isProcessing = false;
+                                    if (response ==
+                                        'please verify your mail(verification mail has been sent).') {
+                                      isResendVerificationMailButtonVisible =
+                                          true;
+                                    } else {
+                                      isResendVerificationMailButtonVisible =
+                                          false;
+                                    }
                                   });
                                 });
                               },
@@ -416,7 +440,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 InputType.obscureComplete
                               ],
                               isButtonActive: isPasswordButtonActive,
-                              onButtonTap: () {
+                              onButtonTap: () async {
                                 setState(() {
                                   error = '';
                                   isProcessing = true;
@@ -425,9 +449,13 @@ class _AuthScreenState extends State<AuthScreen> {
                                 Provider.of<ProjectsHandler>(context,
                                         listen: false)
                                     .createUser(
-                                        usernameController.value.text,
-                                        emailController.value.text,
-                                        passwordController.value.text)
+                                  usernameController.value.text,
+                                  emailController.value.text,
+                                  passwordController.value.text,
+                                  img: imgPath.length > 4
+                                      ? File(imgPath).readAsBytesSync()
+                                      : null,
+                                )
                                     .then((response) {
                                   setState(() {
                                     error = response;

@@ -14,10 +14,24 @@ const Color kColorOrange = Color(0xFFF4A74F);
 const Color kColorAquamarine = Color(0xFF41ECA0);
 
 // ----------------------------------- Paths -----------------------------------
-enum Paths { lottieLoading, defaultUserAvatar, googleLogo }
+enum Paths {
+  lottieLoading,
+  lottieLoadImage,
+  lottieDelete,
+  lottieProfile,
+  lottieSettings,
+  lottieSignOut,
+  defaultUserAvatar,
+  googleLogo
+}
 
 Map<Paths, String> paths = {
   Paths.lottieLoading: 'assets/lottie/loading.json',
+  Paths.lottieLoadImage: 'assets/lottie/load_image.json',
+  Paths.lottieDelete: 'assets/lottie/delete.json',
+  Paths.lottieProfile: 'assets/lottie/profile.json',
+  Paths.lottieSettings: 'assets/lottie/settings.json',
+  Paths.lottieSignOut: 'assets/lottie/sign_out.json',
   Paths.defaultUserAvatar: 'assets/default images/user.png',
   Paths.googleLogo: 'assets/default images/google.png'
 };

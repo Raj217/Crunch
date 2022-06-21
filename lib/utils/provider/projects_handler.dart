@@ -2,23 +2,33 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'dart:io';
+import 'package:crunch/utils/constant.dart';
 import 'package:crunch/utils/firebase/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProjectsHandler extends ChangeNotifier {
   final String _apiLink =
       'https://firestore.googleapis.com/v1/projects/crunch-6d707/databases/(default)/documents/users?key=AIzaSyAFcNxMLjN5hAaMsueXNB1lkXu3u56EaAw';
+
   late FirebaseFirestore _firestore;
   late FirebaseAuth _firebaseAuth;
   late FirebaseStorage _firebaseStorage;
+  late FirebaseRemoteConfig _firebaseRemoteConfig;
   late GoogleSignIn _googleSignIn;
   late String appVersion;
 
@@ -28,6 +38,8 @@ class ProjectsHandler extends ChangeNotifier {
 
   /// For windows stream gets updated only when the timeStamp is changed
   final StreamController _streamController = StreamController.broadcast();
+  final StreamController<double> _downloadStreamController =
+      StreamController<double>.broadcast();
   Timestamp lastUpdate = Timestamp(0, 0);
   String createTime = '';
   String updateTime = '';
@@ -41,6 +53,13 @@ class ProjectsHandler extends ChangeNotifier {
   Uint8List? get getProfileImage => profileImage;
   Stream get getStream => _streamController.stream;
   String get getAppVersion => appVersion;
+  Stream<double> get getDownloadStreamProgress =>
+      _downloadStreamController.stream;
+  Future<bool> get isNewAppVersionAvailable async {
+    await _firebaseRemoteConfig.fetchAndActivate();
+    return !(_firebaseRemoteConfig.getString('version') == appVersion);
+  }
+
   Future<bool> get doesProfileImageExists async {
     String path = 'profile images/${_firebaseAuth.currentUser?.email}.jpg';
     Reference ref = _firebaseStorage.ref().child(path);
@@ -56,12 +75,64 @@ class ProjectsHandler extends ChangeNotifier {
   set setUserName(String username) =>
       _firebaseAuth.currentUser?.updateDisplayName(username);
 
+  // ----------------------------------- App Download ----------------------------------
+  Future<void> downloadUpdate() async {
+    bool hasPermission = await Permission.storage.request().isGranted;
+    if (hasPermission) {
+    } else {
+      await Permission.storage.request();
+    }
+    if (await Permission.storage.request().isGranted) {
+      try {
+        if (await isNewAppVersionAvailable) {
+          String appName =
+              'crunch_v${_firebaseRemoteConfig.getString('version')}.apk';
+          Directory? extDir = await getExternalStorageDirectory();
+          String filePath = '${extDir?.path}/$appName';
+          final file = File(filePath);
+          if (file.existsSync()) {
+            await OpenFile.open(filePath);
+          } else {
+            List<int> _bytes = [];
+            int _received = 0;
+            Reference ref =
+                _firebaseStorage.ref().child('app release/$appName');
+
+            http.StreamedResponse _response = await http.Client().send(
+                http.Request('GET', Uri.parse(await ref.getDownloadURL())));
+            int _total = _response.contentLength ?? 0;
+
+            _response.stream.listen((value) {
+              _bytes.addAll(value);
+              _received += value.length;
+              _downloadStreamController.add(_received / _total);
+            }).onDone(() async {
+              await file.writeAsBytes(_bytes);
+              await OpenFile.open(filePath);
+            });
+          }
+        }
+      } catch (e) {
+        print(e);
+        return;
+      }
+    }
+
+    return;
+  }
+
   // ----------------------------------- Data ----------------------------------
   Future<void> initAppVersion() async {
     appVersion = (await PackageInfo.fromPlatform()).version;
   }
 
   Future<bool> connect() async {
+    Directory? extDir = await getExternalStorageDirectory();
+    await extDir?.delete(recursive: true);
+    if (await Permission.storage.request().isGranted) {
+    } else {
+      await Permission.storage.request();
+    }
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
@@ -70,6 +141,14 @@ class ProjectsHandler extends ChangeNotifier {
     _firestore = FirebaseFirestore.instance;
     _firebaseStorage = FirebaseStorage.instance;
     _googleSignIn = GoogleSignIn();
+    _firebaseRemoteConfig = FirebaseRemoteConfig.instance;
+
+    await _firebaseRemoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 1),
+      minimumFetchInterval: const Duration(seconds: 1),
+    ));
+
+    await _firebaseRemoteConfig.setDefaults({'version': appVersion});
 
     if (_firebaseAuth.currentUser != null) {
       await retrieveData();
@@ -108,15 +187,18 @@ class ProjectsHandler extends ChangeNotifier {
     return false;
   }
 
-  // ----------------------------------- Set New Data ----------------------------------
-  Future<void> setProfileImage(Uint8List? imgFile) async {
+  // ------------------------------ Profile Image -----------------------------
+  Future<void> setProfileImage(
+    Uint8List? imgFile,
+  ) async {
     profileImage = imgFile;
+    await _saveProfileImage();
     notifyListeners();
-    await saveProfileImage();
   }
 
-  Future<void> saveProfileImage() async {
+  Future<void> _saveProfileImage() async {
     if (profileImage != null) {
+      profileImage = await FlutterImageCompress.compressWithList(profileImage!);
       String path = 'profile images/${_firebaseAuth.currentUser?.email}.jpg';
       Reference ref = _firebaseStorage.ref().child(path);
       await ref.putData(profileImage!);
@@ -124,14 +206,25 @@ class ProjectsHandler extends ChangeNotifier {
     return;
   }
 
+  Future<void> deleteProfileImage() async {
+    String path = 'profile images/${_firebaseAuth.currentUser?.email}.jpg';
+    Reference ref = _firebaseStorage.ref().child(path);
+
+    profileImage = null;
+    await ref.delete();
+    return;
+  }
+
   // ----------------------------------- Sign Up ----------------------------------
-  Future<String> createUser(
-      String username, String email, String password) async {
+  Future<String> createUser(String username, String email, String password,
+      {Uint8List? img}) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       _firebaseAuth.currentUser?.updateDisplayName(username);
-      await saveProfileImage();
+
+      profileImage = img;
+      await _saveProfileImage();
 
       if (!(_firebaseAuth.currentUser?.emailVerified ?? false)) {
         sendVerificationEmail();
@@ -201,8 +294,7 @@ class ProjectsHandler extends ChangeNotifier {
           .buffer
           .asUint8List();
 
-      profileImage = await FlutterImageCompress.compressWithList(profileImage!);
-      await saveProfileImage();
+      await _saveProfileImage();
     }
     notifyListeners();
     return;

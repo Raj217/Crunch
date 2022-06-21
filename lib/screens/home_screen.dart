@@ -1,6 +1,7 @@
 import 'package:crunch/screens/auth_screen.dart';
 import 'package:crunch/utils/constant.dart';
 import 'package:crunch/utils/provider/projects_handler.dart';
+import 'package:crunch/widgets/icons/drawer_icon.dart';
 import 'package:crunch/widgets/projects_slider.dart';
 import 'package:crunch/widgets/custom_app_bar.dart';
 import 'package:crunch/widgets/custom_divider.dart';
@@ -8,7 +9,10 @@ import 'package:crunch/widgets/icons/board_icon.dart';
 import 'package:crunch/widgets/user_profile.dart';
 import 'package:crunch/widgets/search_bar.dart';
 
+import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
+
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 
@@ -23,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isLargeScreen = true;
   String searchedProjectName = '';
+  GlobalKey<SliderDrawerState> sliderKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     timeDilation = 1;
@@ -33,43 +38,49 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomAppBar(
-                onSearchChanged: (search) {
-                  setState(() {
-                    searchedProjectName = search;
-                  });
-                },
-              ),
-              const CustomDivider(),
-              Padding(
-                padding: const EdgeInsets.only(top: 10, left: 10),
-                child: Text(
-                  'All',
-                  style: kTextStyleDefaultHeader.copyWith(
-                      fontSize: 20, fontWeight: FontWeight.w600),
+        child: CustomAppBar(
+          onSearchChanged: (search) {
+            setState(() {
+              searchedProjectName = search;
+            });
+          },
+          context: context,
+          child: LiquidPullToRefresh(
+            onRefresh: () async {
+              await Provider.of<ProjectsHandler>(context, listen: false)
+                  .retrieveData();
+            },
+            color: kColorBlack,
+            springAnimationDurationInMilliseconds: 800,
+            child: ListView(
+              children: [
+                const Divider(thickness: 1),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text(
+                    'All',
+                    style: kTextStyleDefaultHeader.copyWith(
+                        fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ),
-              ProjectsSlider(
-                  stream: Provider.of<ProjectsHandler>(context, listen: false)
-                      .getStream),
-              Padding(
-                padding: const EdgeInsets.only(top: 10, left: 10),
-                child: Text(
-                  'Searched Items',
-                  style: kTextStyleDefaultHeader.copyWith(
-                      fontSize: 20, fontWeight: FontWeight.w600),
+                ProjectsSlider(
+                    stream: Provider.of<ProjectsHandler>(context, listen: false)
+                        .getStream),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, left: 10),
+                  child: Text(
+                    'Searched Items',
+                    style: kTextStyleDefaultHeader.copyWith(
+                        fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ),
-              ProjectsSlider(
-                  showAddBoardButton: false,
-                  matchProjectName: searchedProjectName,
-                  stream: Provider.of<ProjectsHandler>(context, listen: false)
-                      .getStream),
-            ],
+                ProjectsSlider(
+                    showAddBoardButton: false,
+                    matchProjectName: searchedProjectName,
+                    stream: Provider.of<ProjectsHandler>(context, listen: false)
+                        .getStream),
+              ],
+            ),
           ),
         ),
       ),
