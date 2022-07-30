@@ -10,7 +10,7 @@ Will be using firestore in backend and will be free.
 
 # Crunch
 Inspired from Trello.<br>
-A Project can be created from the [home screen](#-Home-Screen) which can then contain boards(lists). These boards contains cards which can be moved from one board to other. The board itself can also be moved. Each card has it's own details page which stores data like it's description, checklists and attachments(in development).
+A Project can be created from the home screen which can then contain boards(lists). These boards contains cards which can be moved from one board to other. The board itself can also be moved. Each card has it's own details page which stores data like it's description, checklists and attachments(in development).
 
 # Login Screen
 <img src="demo%20images/login.jpg" height=500px>
