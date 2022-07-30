@@ -6,9 +6,11 @@ A multi-platform tracker app for projects.
 Initial target is for android and windows only.
 Will be using firestore in backend and will be free.
 
+[Download for android](https://firebasestorage.googleapis.com/v0/b/crunch-6d707.appspot.com/o/app%20release%2Fcrunch_v0.2.1.apk?alt=media&token=4d05fac8-e82a-4d05-8853-27427f8aa59e)
+
 # Crunch
 Inspired from Trello.<br>
-A Project can be created from the home screen which can then contain boards(lists). These boards contains cards which can be moved from one board to other. The board itself can also be moved. Each card has it's own details page which stores data like it's description, checklists and attachments(in development).
+A Project can be created from the [home screen](#-Home-Screen) which can then contain boards(lists). These boards contains cards which can be moved from one board to other. The board itself can also be moved. Each card has it's own details page which stores data like it's description, checklists and attachments(in development).
 
 # Login Screen
 <img src="demo%20images/login.jpg" height=500px>
